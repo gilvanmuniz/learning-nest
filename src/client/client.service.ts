@@ -68,6 +68,7 @@ export class ClientService {
 
     async deleteByEmail(email):Promise<any>{
         //return await this.clientModel.findOneAndDelete(email).exec();
-        return await this.clientModel.remove(email).exec();
+        return await this.clientModel.deleteOne(email).exec();
     }
+    
 }

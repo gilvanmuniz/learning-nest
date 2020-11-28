@@ -1,8 +1,8 @@
-import { Body, Controller, Get, Injectable, Post, Query, Logger } from '@nestjs/common';
+import { Body, Controller, Get, Injectable, Post, Query, Logger, UsePipes, ValidationPipe, Delete,} from '@nestjs/common';
 import {  CreateClientDto } from './dtos/create-client.dto';
-import { ClientService } from './client.service'
-import { Client } from './entities/client.entity'
-
+import { ClientService } from './client.service';
+import { Client } from './entities/client.entity';
+import { ClientValidatorPipes } from './pipes/client-validator.pipes'
 @Controller('/client')
 export class ClientController {
     
@@ -20,8 +20,16 @@ export class ClientController {
     }
 
     @Post()
+    @UsePipes(ValidationPipe)
     async createClient(@Body() createClienteDto: CreateClientDto):Promise<Client>{
         return await this.clientService.createClient(createClienteDto);
+    }
+
+    @Delete()
+    async deleteClientByEmail(
+        @Query('email',ClientValidatorPipes ) email: String):Promise<void>{
+        
+        return this.clientService.deleteByEmail(email);
     }
 
 }
