@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { CreateClientDto } from './dtos/create-client.dto'
 import { Client } from './entities/client.entity';
@@ -9,7 +9,7 @@ export class ClientService {
     
     // private client:Client[] = [];
     constructor(@InjectModel('client') private readonly clientModel:Model<Client>) {}
-    // private readonly logger = new Logger(ClientService.name)
+    private readonly logger = new Logger(ClientService.name)
 
     async createClient(createClientDto:CreateClientDto):Promise<Client>{ 
         const { email } = createClientDto;
@@ -19,44 +19,30 @@ export class ClientService {
         if(clientFound){
            //return this.updateClient(clientFound, createClientDto);
            throw new BadRequestException(`Jogador com email ${email} já encontrado`)
-        } 
+        }
+        else{
+            const clientCriado = new this.clientModel(createClientDto);
+            return await clientCriado.save();
+        }
 
-      return this.criar(createClientDto);
+      //return this.criar(createClientDto);
+      
     }
 
-    private async criar(CreateClientDto:CreateClientDto):Promise<Client>{
-        
-        const clientCriado = new this.clientModel(CreateClientDto);
-        return await clientCriado.save();
-        /*
-        const { name, cellphone, email, monitoring } = CreateClientDto;
-        const client:Client = {
-            id: Math.floor(Math.random() * 100),
-            name,
-            cellphone,
-            email,
-            monitoring            
-        }         
-        this.client.push(client)
-        this.logger.log(`CreateClientDto: ${JSON.stringify(CreateClientDto)}`);
-        */
+    async atualizar(_id:string, createClientDto:CreateClientDto):Promise<void>{
+        const clientFound = await this.clientModel.findOne({_id}).exec();  
+        if(!clientFound){
+            throw new NotFoundException(`Jogador com id ${_id} não encontrado`);
+        }   
+        await this.clientModel.findOneAndUpdate({_id},
+           {$set: createClientDto}).exec();
+           
     }
-
-    // private async updateClient(clientFound:Client, createClientDto:CreateClientDto):Promise<Client>{
-        
-    //     return await this.clientModel.findOneAndUpdate({email:createClientDto.email}, {$set:createClientDto}).exec();
-       
-    //     // const { name, cellphone, email, monitoring } = clientFound;
-    //     // clientFound.name = createClientDto.name;
-    //     // clientFound.cellphone = createClientDto.cellphone;
-    //     // clientFound.email = createClientDto.email;
-    //     // clientFound.monitoring = createClientDto.monitoring;
-    // }
-
-     async findClient():Promise<Client[]>{
-         return await this.clientModel.find().exec();
-        //return await this.client;
+    async findClient():Promise<Client[]>{
+        return await this.clientModel.find().exec();
+       //return await this.client;
     }
+           
 
     async findClientByEmail(email):Promise<Client>{
     const clientFound = await this.clientModel.findOne({ email }).exec();             
@@ -66,9 +52,28 @@ export class ClientService {
         return await clientFound;
     }
 
+    async findClientById(_id:String):Promise<Client>{        
+        const clientFound = await this.clientModel.findOne({_id}).exec();           
+        return await clientFound;        
+    }
+
     async deleteByEmail(email):Promise<any>{
-        //return await this.clientModel.findOneAndDelete(email).exec();
-        return await this.clientModel.deleteOne(email).exec();
+        this.logger.log(email);
+        const clientFound = await this.clientModel.findOne({ email }).exec();
+        if(!clientFound){
+            return new NotFoundException(`Jogador com esse ${email} não encontrado`);
+        } 
+        return await this.clientModel.findOneAndDelete(email).exec();
+        //return await this.clientModel.deleteOne({email}).exec();
+    }
+    async deleteById(_id):Promise<any>{
+        this.logger.log(_id);
+        const clientFound = await this.clientModel.findOne({ _id }).exec();
+        if(!clientFound){
+            return new NotFoundException(`Jogador com esse ${_id} não encontrado`);
+        } 
+        return await this.clientModel.findOneAndDelete(_id).exec();
+        //return await this.clientModel.deleteOne({email}).exec();
     }
     
 }

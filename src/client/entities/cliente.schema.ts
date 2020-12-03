@@ -7,8 +7,7 @@ export const ClientSchema = new mongoose.Schema({
             type:String
         },
         cellphone:{
-            type:String, 
-            unique:true
+            type:String,            
         }, 
         email:{
             type:String,
