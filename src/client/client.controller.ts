@@ -16,14 +16,13 @@ export class ClientController {
         //      return this.clientService.findClientByEmail(email);
         //  }
          
-             return this.clientService.findClient();
-        
+             return this.clientService.findClient();        
     }
+
     @Get('/:_id')
     async findClientById(@Param('_id', ClientValidatorPipes) _id: String):Promise<Client[] | Client>{
          this.logger.log(_id);         
-         return this.clientService.findClientById(_id);
-                
+         return this.clientService.findClientById(_id);                
     }
 
     @Post()

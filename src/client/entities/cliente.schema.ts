@@ -1,6 +1,4 @@
-import { timeStamp } from 'console';
 import * as mongoose from 'mongoose';
-
 
 export const ClientSchema = new mongoose.Schema({         
         name:{

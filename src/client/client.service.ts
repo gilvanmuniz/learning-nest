@@ -35,8 +35,7 @@ export class ClientService {
             throw new NotFoundException(`Jogador com id ${_id} não encontrado`);
         }   
         await this.clientModel.findOneAndUpdate({_id},
-           {$set: createClientDto}).exec();
-           
+           {$set: createClientDto}).exec();           
     }
     async findClient():Promise<Client[]>{
         return await this.clientModel.find().exec();
@@ -52,7 +51,8 @@ export class ClientService {
         return await clientFound;
     }
 
-    async findClientById(_id:String):Promise<Client>{        
+    async findClientById(_id:String):Promise<Client>{
+        console.log(_id)        
         const clientFound = await this.clientModel.findOne({_id}).exec();           
         return await clientFound;        
     }
